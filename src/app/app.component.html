@@ -1,0 +1,57 @@
+<div class="app-shell" [class.menu-visible]="menuOpen()">
+  <aside class="sidebar">
+    <div class="drawer-header"><a class="brand" href="#jobs" (click)="menuOpen.set(false)"><img src="image.png" alt="OPTQVO"><span>OPTQVO</span></a><button class="drawer-close" type="button" (click)="menuOpen.set(false)">Close</button></div>
+    <p class="sidebar-copy">Work, people and ideas worth following.</p>
+    <nav class="main-nav" aria-label="Main navigation">
+      @for (section of sections; track section) {
+        @if (section === 'Jobs') {
+          <a class="nav-link active" href="#jobs" (click)="comingSoon.set(null); menuOpen.set(false)">Jobs</a>
+        } @else {
+          <button class="nav-link future-link" type="button" (click)="showComingSoon(section)">{{ section }}</button>
+        }
+      }
+    </nav>
+  </aside>
+  <div class="scrim" (click)="menuOpen.set(false)"></div>
+
+  <main>
+    <header class="topbar">
+      <a class="mobile-brand" href="#jobs"><img src="image.png" alt="OPTQVO"><span>OPTQVO</span></a>
+      <button class="menu-button" type="button" aria-label="Open navigation" (click)="menuOpen.set(true)"><span></span><span></span><span></span></button>
+      <label class="desktop-search"><span class="visually-hidden">Search jobs</span><input placeholder="Search jobs, skills or companies" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
+    </header>
+
+    @if (comingSoon(); as section) {
+      <div class="coming-soon-backdrop" (click)="comingSoon.set(null)"></div>
+      <section class="coming-soon" role="dialog" aria-modal="true" [attr.aria-label]="section + ' coming soon'">
+        <p>{{ section }}</p><h2>Coming soon</h2><span>We are building this part of OPTQVO. Jobs is available now.</span><button type="button" (click)="comingSoon.set(null)">Back to jobs</button>
+      </section>
+    }
+
+    <section class="hero" id="jobs">
+      <p>OPTQVO JOBS</p>
+      <h1>Jobs for your<br><em>next move.</em></h1>
+      <span>Direct application links from 103 recently scanned openings.</span>
+    </section>
+
+    <section class="content">
+      <label class="mobile-search"><span class="visually-hidden">Search jobs</span><input placeholder="Search jobs, skills or companies" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
+      <div class="section-heading"><div><h2>Jobs</h2><p>{{ filteredJobs.length }} matching listings</p></div><label class="category-filter"><span>Category</span><select [ngModel]="category()" (ngModelChange)="category.set($event)">@for (item of categories; track item) { <option [value]="item">{{ item }}</option> }</select></label></div>
+      <div class="tabs" role="tablist">
+        @for (tab of tabs; track tab) { <button type="button" [class.active]="activeTab() === tab" (click)="setTab(tab)">{{ tab }}</button> }
+      </div>
+      <div class="jobs-list">
+        @for (job of filteredJobs; track job.applyUrl) {
+          <article class="job-card">
+            <div class="job-title"><h3>{{ job.title }}</h3><p>{{ job.company }}</p></div>
+            <div class="job-facts"><span>{{ job.category }}</span><span>{{ job.location }}</span><span>Posted {{ job.posted }}</span><span>{{ job.source }}</span></div>
+            <p class="job-description">{{ job.description }}</p>
+            <div class="job-footer"><div class="skills">@for (skill of job.skills; track skill) { <span>{{ skill }}</span> }</div><a class="apply-link" [href]="job.applyUrl" target="_blank" rel="noopener noreferrer">Apply now</a></div>
+          </article>
+        } @empty {
+          <div class="empty-state"><h3>No jobs found</h3><p>Try a different search.</p><button type="button" (click)="query.set('')">Clear search</button></div>
+        }
+      </div>
+    </section>
+  </main>
+</div>
