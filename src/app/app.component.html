@@ -31,7 +31,7 @@
     <section class="hero" id="jobs">
       <p>OPTQVO JOBS</p>
       <h1>Jobs for your<br><em>next move.</em></h1>
-      <span>Direct application links from 103 recently scanned openings.</span>
+      <span>Five curated graduate and trainee opportunities with direct application links.</span>
     </section>
 
     <section class="content">
@@ -44,7 +44,7 @@
         @for (job of filteredJobs; track job.applyUrl) {
           <article class="job-card">
             <div class="job-title"><h3>{{ job.title }}</h3><p>{{ job.company }}</p></div>
-            <div class="job-facts"><span>{{ job.category }}</span><span>{{ job.location }}</span><span>Posted {{ job.posted }}</span><span>{{ job.source }}</span></div>
+            <div class="job-facts"><span>{{ job.category }}</span><span>{{ job.jobType }}</span><span>{{ job.location }}</span><span>Posted {{ job.posted }}</span><span>{{ job.source }}</span></div>
             <p class="job-description">{{ job.description }}</p>
             <div class="job-footer"><div class="skills">@for (skill of job.skills; track skill) { <span>{{ skill }}</span> }</div><a class="apply-link" [href]="job.applyUrl" target="_blank" rel="noopener noreferrer">Apply now</a></div>
           </article>

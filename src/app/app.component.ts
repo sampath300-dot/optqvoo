@@ -14,6 +14,7 @@ interface Job {
   description: string;
   skills: string[];
   category: string;
+  jobType: string;
   applyUrl: string;
 }
 
@@ -33,7 +34,7 @@ export class AppComponent {
 
   readonly sections = ['Jobs', 'Tech news', 'Founders', 'Startups', 'Events', 'Resources'];
   readonly tabs: Tab[] = ['All roles', 'Internships'];
-  readonly categories = ['All categories', 'Software Engineering', 'Full Stack', 'Frontend & Mobile', 'Data & Analytics', 'Cloud & DevOps', 'Quality & Testing', 'Security', 'Support & Consulting', 'AI & ML', 'Internships'];
+  readonly categories = ['All categories', 'Graduate & Trainee', 'Software Engineering', 'Full Stack', 'Frontend & Mobile', 'Data & Analytics', 'Cloud & DevOps', 'Quality & Testing', 'Security', 'Support & Consulting', 'AI & ML', 'Internships'];
   readonly jobs = rawJobs.map((job) => this.enrichJob(job)).sort((a, b) => b.posted.localeCompare(a.posted));
 
   get filteredJobs(): Job[] {
@@ -54,14 +55,15 @@ export class AppComponent {
     return {
       ...job,
       category,
-      skills: this.getSkills(category, job.title),
-      description: job.reviewFlag === 'No obvious flag' ? `Listed on ${job.source}. Review the company page for requirements and eligibility.` : job.reviewFlag
+      skills: job.skills ?? this.getSkills(category, job.title),
+      description: job.description ?? (job.reviewFlag === 'No obvious flag' ? `Listed on ${job.source}. Review the company page for requirements and eligibility.` : job.reviewFlag)
     };
   }
 
   private getCategory(title: string): string {
     const value = title.toLowerCase();
     if (value.includes('intern')) return 'Internships';
+    if (value.includes('trainee') || value.includes('graduate')) return 'Graduate & Trainee';
     if (value.includes('security') || value.includes('cyber')) return 'Security';
     if (value.includes('test') || value.includes('qa')) return 'Quality & Testing';
     if (value.includes('devops') || value.includes('site reliability') || value.includes('sre')) return 'Cloud & DevOps';
@@ -75,7 +77,7 @@ export class AppComponent {
 
   private getSkills(category: string, title: string): string[] {
     const categorySkills: Record<string, string[]> = {
-      'Internships': ['Internship', 'Early career'], 'Security': ['Security', 'Risk analysis'], 'Quality & Testing': ['Testing', 'Automation'],
+      'Internships': ['Internship', 'Early career'], 'Graduate & Trainee': ['Engineering fundamentals', 'Early career'], 'Security': ['Security', 'Risk analysis'], 'Quality & Testing': ['Testing', 'Automation'],
       'Cloud & DevOps': ['Cloud', 'DevOps'], 'Data & Analytics': ['Analytics', 'SQL'], 'Support & Consulting': ['Technical support', 'Systems'],
       'AI & ML': ['Machine learning', 'Engineering'], 'Frontend & Mobile': ['Frontend', 'Product development'], 'Full Stack': ['Full stack', 'Engineering'],
       'Software Engineering': ['Software engineering', 'Development']
