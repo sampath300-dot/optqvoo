@@ -1,14 +1,18 @@
 <div class="app-shell" [class.menu-visible]="menuOpen()">
   <aside class="sidebar">
-    <div class="drawer-header"><a class="brand" href="#jobs" (click)="menuOpen.set(false)"><img src="image.png" alt="OPTQVO"><span>OPTQVO</span></a><button class="drawer-close" type="button" (click)="menuOpen.set(false)">Close</button></div>
+    <div class="drawer-header">
+      <a class="brand" href="/" (click)="$event.preventDefault(); navigate('home')"><img [src]="logoSrc()" alt="OPTQVO" width="27" height="27"><span>OPTQVO</span></a>
+      <div class="drawer-actions">
+        <button class="theme-toggle" type="button" [attr.aria-label]="themeLabel()" (click)="toggleTheme()">{{ theme() === 'dark' ? 'Light' : 'Dark' }}</button>
+        <button class="drawer-close" type="button" (click)="menuOpen.set(false)">Close</button>
+      </div>
+    </div>
     <p class="sidebar-copy">Work, people and ideas worth following.</p>
     <nav class="main-nav" aria-label="Main navigation">
-      @for (section of sections; track section) {
-        @if (section === 'Jobs') {
-          <a class="nav-link active" href="#jobs" (click)="comingSoon.set(null); menuOpen.set(false)">Jobs</a>
-        } @else {
-          <button class="nav-link future-link" type="button" (click)="showComingSoon(section)">{{ section }}</button>
-        }
+      <a class="nav-link" [class.active]="page() === 'home'" href="/" (click)="$event.preventDefault(); navigate('home')">Home</a>
+      <a class="nav-link" [class.active]="page() === 'jobs' || page() === 'job'" href="/jobs" (click)="$event.preventDefault(); navigate('jobs')">Jobs</a>
+      @for (section of futureSections; track section) {
+        <button class="nav-link future-link" type="button" (click)="showComingSoon(section)">{{ section }}</button>
       }
     </nav>
   </aside>
@@ -16,42 +20,109 @@
 
   <main>
     <header class="topbar">
-      <a class="mobile-brand" href="#jobs"><img src="image.png" alt="OPTQVO"><span>OPTQVO</span></a>
-      <button class="menu-button" type="button" aria-label="Open navigation" (click)="menuOpen.set(true)"><span></span><span></span><span></span></button>
-      <label class="desktop-search"><span class="visually-hidden">Search jobs</span><input placeholder="Search jobs, skills or companies" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
+      <a class="mobile-brand" href="/" (click)="$event.preventDefault(); navigate('home')"><img [src]="logoSrc()" alt="OPTQVO" width="23" height="23"><span>OPTQVO</span></a>
+      <button class="menu-button" type="button" aria-label="Open navigation" (click)="menuOpen.set(true)">Menu</button>
+      @if (page() === 'jobs') {
+        <label class="desktop-search"><span class="visually-hidden">Search jobs</span><input placeholder="Search jobs, skills or companies" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
+      }
+      <button class="theme-toggle desktop-theme" type="button" [attr.aria-label]="themeLabel()" (click)="toggleTheme()">{{ theme() === 'dark' ? 'Light' : 'Dark' }}</button>
     </header>
 
     @if (comingSoon(); as section) {
       <div class="coming-soon-backdrop" (click)="comingSoon.set(null)"></div>
       <section class="coming-soon" role="dialog" aria-modal="true" [attr.aria-label]="section + ' coming soon'">
-        <p>{{ section }}</p><h2>Coming soon</h2><span>We are building this part of OPTQVO. Jobs is available now.</span><button type="button" (click)="comingSoon.set(null)">Back to jobs</button>
+        <p>{{ section }}</p><h2>Coming soon</h2><span>We are building this part of OPTQVO. Jobs is available now.</span><button type="button" (click)="comingSoon.set(null)">Back to home</button>
       </section>
     }
 
-    <section class="hero" id="jobs">
-      <p>OPTQVO JOBS</p>
-      <h1>Jobs for your<br><em>next move.</em></h1>
-      <span>Five curated graduate and trainee opportunities with direct application links.</span>
-    </section>
+    @if (page() === 'home') {
+      <section class="home-hero">
+        <p class="eyebrow">OPTQVO</p>
+        <h1>Tech news, startups<br><em>and what's next.</em></h1>
+        <p>One place for the stories, companies, resources and events worth your time, with a curated job board for early-career engineers.</p>
+        <div class="cta-row">
+          <button class="cta-primary" type="button" (click)="goToJobs()">Browse jobs</button>
+          <a class="cta-secondary" href="#explore">See what's coming</a>
+        </div>
+      </section>
 
-    <section class="content">
-      <label class="mobile-search"><span class="visually-hidden">Search jobs</span><input placeholder="Search jobs, skills or companies" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
-      <div class="section-heading"><div><h2>Jobs</h2><p>{{ filteredJobs.length }} matching listings</p></div><label class="category-filter"><span>Category</span><select [ngModel]="category()" (ngModelChange)="category.set($event)">@for (item of categories; track item) { <option [value]="item">{{ item }}</option> }</select></label></div>
-      <div class="tabs" role="tablist">
-        @for (tab of tabs; track tab) { <button type="button" [class.active]="activeTab() === tab" (click)="setTab(tab)">{{ tab }}</button> }
+      <div class="home-body">
+        <section class="panel" id="explore" aria-labelledby="explore-heading">
+          <div class="panel-head">
+            <div><h2 id="explore-heading">What's on OPTQVO</h2><p>Five areas, built one at a time.</p></div>
+          </div>
+          <div class="pillar-grid">
+            @for (pillar of pillars; track pillar.name) {
+              <button class="pillar-card" [class.live]="pillar.live" type="button" (click)="pillar.live ? goToJobs() : showComingSoon(pillar.name)">
+                <h3>{{ pillar.name }}</h3>
+                <p>{{ pillar.blurb }}</p>
+                <span class="pillar-status">{{ pillar.live ? jobs.length + ' open now' : 'Coming soon' }}</span>
+              </button>
+            }
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="latest-heading">
+          <div class="panel-head">
+            <div><h2 id="latest-heading">Latest jobs</h2><p>Newest additions to the board.</p></div>
+            <button class="link-button" type="button" (click)="goToJobs()">View all jobs</button>
+          </div>
+          <ul class="teaser">
+            @for (job of featuredJobs; track job.applyUrl) {
+              <li><button class="teaser-link" type="button" (click)="openJob(job)"><strong>{{ job.title }}</strong><span>{{ job.company }} · {{ job.location }}</span></button></li>
+            }
+          </ul>
+        </section>
+
+        <footer class="site-footer">OPTQVO · Tech news, startups, resources, events and jobs.</footer>
       </div>
-      <div class="jobs-list">
-        @for (job of filteredJobs; track job.applyUrl) {
-          <article class="job-card">
-            <div class="job-title"><h3>{{ job.title }}</h3><p>{{ job.company }}</p></div>
-            <div class="job-facts"><span>{{ job.category }}</span><span>{{ job.jobType }}</span><span>{{ job.location }}</span><span>Posted {{ job.posted }}</span><span>{{ job.source }}</span></div>
-            <p class="job-description">{{ job.description }}</p>
-            <div class="job-footer"><div class="skills">@for (skill of job.skills; track skill) { <span>{{ skill }}</span> }</div><a class="apply-link" [href]="job.applyUrl" target="_blank" rel="noopener noreferrer">Apply now</a></div>
-          </article>
-        } @empty {
-          <div class="empty-state"><h3>No jobs found</h3><p>Try a different search.</p><button type="button" (click)="query.set('')">Clear search</button></div>
-        }
-      </div>
-    </section>
+    } @else if (page() === 'job') {
+      @if (selectedJob(); as job) {
+        <article class="job-detail">
+          <a class="back-link" href="/jobs" (click)="$event.preventDefault(); navigate('jobs')">All jobs</a>
+          <p class="detail-eyebrow">{{ job.category }}</p>
+          <h1>{{ job.title }}</h1>
+          <p class="detail-company">{{ job.company }}</p>
+          <div class="job-facts"><span>{{ job.jobType }}</span><span>{{ job.location }}</span><span>Posted {{ job.posted }}</span><span>{{ job.source }}</span></div>
+          <p class="detail-description">{{ job.description }}</p>
+          <div class="skills">@for (skill of job.skills; track skill) { <span>{{ skill }}</span> }</div>
+          <p class="detail-note">{{ job.reviewFlag }}</p>
+          <div class="detail-actions">
+            <a class="apply-link detail-apply" [href]="job.applyUrl" target="_blank" rel="noopener noreferrer">Apply on {{ job.source }}</a>
+            <span>Opens the employer's site in a new tab.</span>
+          </div>
+        </article>
+      } @else {
+        <div class="job-detail">
+          <div class="empty-state"><h3>Job not found</h3><p>This listing may have been removed.</p><button type="button" (click)="navigate('jobs')">Back to jobs</button></div>
+        </div>
+      }
+    } @else {
+      <section class="hero" id="jobs">
+        <p>OPTQVO JOBS</p>
+        <h1>Jobs for your<br><em>next move.</em></h1>
+        <span>Five curated internships, graduate programmes and early-career engineering roles with direct application links.</span>
+      </section>
+
+      <section class="content">
+        <label class="mobile-search"><span class="visually-hidden">Search jobs</span><input placeholder="Search jobs, skills or companies" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
+        <div class="section-heading"><div><h2>Jobs</h2><p>{{ filteredJobs.length }} matching listings</p></div><label class="category-filter"><span>Category</span><select [ngModel]="category()" (ngModelChange)="category.set($event)">@for (item of categories; track item) { <option [value]="item">{{ item }}</option> }</select></label></div>
+        <div class="tabs" role="tablist">
+          @for (tab of tabs; track tab) { <button type="button" [class.active]="activeTab() === tab" (click)="setTab(tab)">{{ tab }}</button> }
+        </div>
+        <div class="jobs-list">
+          @for (job of filteredJobs; track job.applyUrl) {
+            <article class="job-card">
+              <div class="job-title"><h3>{{ job.title }}</h3><p>{{ job.company }}</p></div>
+              <div class="job-facts"><span>{{ job.category }}</span><span>{{ job.jobType }}</span><span>{{ job.location }}</span><span>Posted {{ job.posted }}</span><span>{{ job.source }}</span></div>
+              <p class="job-description">{{ job.description }}</p>
+              <div class="job-footer"><div class="skills">@for (skill of job.skills; track skill) { <span>{{ skill }}</span> }</div><button class="apply-link view-link" type="button" (click)="openJob(job)">View details</button></div>
+            </article>
+          } @empty {
+            <div class="empty-state"><h3>No jobs found</h3><p>Try a different search.</p><button type="button" (click)="query.set(''); category.set('All categories'); activeTab.set('All roles')">Clear filters</button></div>
+          }
+        </div>
+      </section>
+    }
   </main>
 </div>

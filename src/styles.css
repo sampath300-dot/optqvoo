@@ -4,9 +4,13 @@
 @import '@fontsource/inter/700.css';
 @import '@fontsource/inter/800.css';
 
-:root { color-scheme: light; font-family: 'Inter', Arial, sans-serif; color: #111; background: #f4f4ef; }
+:root { color-scheme: light; font-family: 'Inter', Arial, sans-serif; color: #131322; background: #f6f6fb; }
+html[data-theme='dark'] { color-scheme: dark; color: #f4f4fb; background: #08080d; }
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; }
-html, body { width: 100%; overflow-x: hidden; }
-button, input { font: inherit; }
+body { margin: 0; min-width: 320px; background: inherit; }
+html, body { width: 100%; overflow-x: hidden; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html { scrollbar-gutter: stable; }
+body.drawer-open { overflow: hidden; }
+img, svg { max-width: 100%; }
+button, input, select { font: inherit; }
 button { cursor: pointer; }
